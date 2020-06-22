@@ -13,7 +13,7 @@ class StickersViewController: UIViewController {
 
     var stickers = [StickerModel]()
     
-    var count: Int = 3
+    var count: Int = 7
     
     var collectionView: UICollectionView!
     var dataSource: UICollectionViewDiffableDataSource<Section, StickerModel>! = nil
@@ -66,6 +66,10 @@ class StickersViewController: UIViewController {
     func reloadData() {
         currentSnapshot = NSDiffableDataSourceSnapshot<Section, StickerModel>()
         currentSnapshot.appendSections([.main])
+        for i in 0...0 {
+            stickers.removeLast()
+        }
+        
         currentSnapshot.appendItems(stickers, toSection: .main)
         
         dataSource.apply(currentSnapshot, animatingDifferences: true)
@@ -92,6 +96,10 @@ class StickersViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
+        
+        let bottomArea = -(UIApplication.shared.keyWindow?.safeAreaInsets.bottom)!
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomArea, right: 0)
+        
     }
     
     // MARK: - Layout
@@ -114,8 +122,10 @@ class StickersViewController: UIViewController {
             let section = NSCollectionLayoutSection(group: group)
             section.contentInsets = NSDirectionalEdgeInsets(top: -8, leading: 8, bottom: 8, trailing: 8)
             
-            let sectionFooterrSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(530))
-            let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionFooterrSize, elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
+            let sectionFooterSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(514))
+            let sectionFooter = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionFooterSize, elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
+            
+            sectionFooter.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -8, bottom: 0, trailing: -8)
             section.boundarySupplementaryItems = [sectionFooter]
             
             return section
@@ -161,5 +171,36 @@ extension StickersViewController {
     @objc func loopButtonTapped() {
         count += 1
         dataSource.apply(currentSnapshot, animatingDifferences: true)
+    }
+}
+
+// MARK: - SwiftUI
+import SwiftUI
+
+struct StickersVCProvider: PreviewProvider {
+    static var previews: some View {
+        Group {
+            Group {
+                ContainerView().edgesIgnoringSafeArea(.all)
+                    .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro"))
+                    .previewDisplayName("iPhone 11 Pro")
+                
+                ContainerView().edgesIgnoringSafeArea(.all)
+                    .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
+                    .previewDisplayName("iPhone 7")
+            }
+        }
+    }
+    
+    struct ContainerView: UIViewControllerRepresentable {
+        
+        let viewController = UINavigationController(rootViewController: StickersViewController())
+        
+        func makeUIViewController(context: UIViewControllerRepresentableContext<StickersVCProvider.ContainerView>) -> UINavigationController {
+            return viewController
+        }
+        func updateUIViewController(_ uiViewController: StickersVCProvider.ContainerView.UIViewControllerType, context: UIViewControllerRepresentableContext<StickersVCProvider.ContainerView>) {
+            
+        }
     }
 }
